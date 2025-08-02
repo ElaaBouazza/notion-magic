@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Art Calendar</title>
+    <!-- Importing a pixelated font from Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
+    <style>
+        /* CSS for the Pixel Art Calendar */
+
+        /* Defining the new color palette */
+        :root {
+            --color-thistle-light: #E8CEE4;
+            --color-thistle-dark: #D7BCE8;
+            --color-pale-purple: #FDE2FF;
+            --color-marian-blue: #2F488E;
+            --color-redwood: #A66063;
+        }
+
+        /* General Styling */
+        body {
+            font-family: 'Press Start 2P', monospace;
+            background-color: #f8f8f8; /* Neutral background for testing */
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-size: 10px; /* Base font size for a pixel feel */
+        }
+
+        /* The main container for the calendar, with the retro border effect */
+        .calendar-container {
+            width: 280px;
+            border-style: solid;
+            border-width: 2px;
+            border-color: var(--color-marian-blue) var(--color-redwood) var(--color-redwood) var(--color-marian-blue);
+            box-shadow: 
+                -2px -2px 0 0 var(--color-redwood),
+                2px 2px 0 0 var(--color-thistle-dark),
+                -4px -4px 0 0 var(--color-marian-blue),
+                4px 4px 0 0 var(--color-thistle-dark);
+            
+            background-color: var(--color-thistle-light);
+            box-sizing: border-box;
+            padding: 15px;
+            color: var(--color-marian-blue);
+        }
+        
+        /* The header section with navigation arrows and month/year */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between; /* Horizontally distribute items */
+            align-items: center; /* Vertically center all items in the header row */
+            margin-bottom: 10px;
+            font-size: 1.2em;
+            text-align: center;
+            border-bottom: 1px solid var(--color-marian-blue);
+            padding-bottom: 5px;
+        }
+
+        /* The container for the month, year, and image, centered vertically */
+        .header-center-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Style for the GIF image */
+        .header-gif {
+            width: 32px; /* Adjust size to fit pixel art theme */
+            height: 32px;
+            image-rendering: pixelated; /* Ensures the pixel art is not blurry */
+            margin-bottom: 5px; /* Added spacing below the image */
+        }
+
+        /* Styles for the new pixel arrow images */
+        .arrow-image {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            image-rendering: pixelated;
+        }
+        
+        .month-year-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #monthDisplay {
+            text-transform: uppercase;
+        }
+
+        #yearDisplay {
+            font-size: 0.8em;
+            opacity: 0.8;
+            margin-top: 2px;
+            margin-bottom: 5px;
+        }
+        
+        /* Day names header (S, M, T, W...) */
+        .calendar-days-header {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            font-size: 0.8em;
+            margin-bottom: 8px;
+        }
+        
+        /* The grid for the days of the month */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            grid-template-rows: repeat(6, 1fr);
+            gap: 5px; /* Spacing between day cells */
+            font-size: 1em;
+            min-height: 120px; /* Ensure a minimum height if 5 rows are used */
+        }
+        
+        .calendar-grid div {
+            text-align: center;
+            padding: 5px 0;
+            cursor: pointer;
+            border: 1px solid transparent; /* To prevent layout shift on hover */
+        }
+        
+        .calendar-grid div:not(.inactive):hover {
+            border: 1px solid var(--color-marian-blue);
+            background-color: var(--color-redwood);
+            color: var(--color-thistle-light);
+        }
+
+        /* Styling for the current day */
+        .calendar-grid div.current-day {
+            background-color: var(--color-redwood);
+            color: var(--color-thistle-light);
+            border: 1px solid var(--color-redwood);
+        }
+        
+        /* Styling for inactive days (from previous/next month) */
+        .calendar-grid div.inactive {
+            color: rgba(47, 72, 142, 0.4); /* Faded Marian blue */
+            cursor: default;
+        }
+    </style>
+</head>
+<body>
+    <div class="calendar-container">
+        <div class="calendar-header">
+            <img src="https://i.imgur.com/dYdvcpl.png" class="arrow-image" id="prevMonth" alt="Previous Month Arrow">
+            <div class="header-center-container">
+                <img src="https://yokai.crd.co/assets/images/gallery19/385bbbe4.gif?v=b4df531c" class="header-gif" id="monthGif" alt="Pixel art character">
+                <div class="month-year-container">
+                    <span id="monthDisplay"></span>
+                    <span id="yearDisplay"></span>
+                </div>
+            </div>
+            <img src="https://i.imgur.com/lNyX2xd.png" class="arrow-image" id="nextMonth" alt="Next Month Arrow">
+        </div>
+        <div class="calendar-days-header">
+            <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+        </div>
+        <div class="calendar-grid" id="calendarGrid">
+            <!-- Calendar days will be generated here by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // JavaScript for the calendar
+        
+        const monthDisplay = document.getElementById('monthDisplay');
+        const yearDisplay = document.getElementById('yearDisplay');
+        const monthGif = document.getElementById('monthGif');
+        const prevMonthBtn = document.getElementById('prevMonth');
+        const nextMonthBtn = document.getElementById('nextMonth');
+        const calendarGrid = document.getElementById('calendarGrid');
+        
+        let currentDisplayedDate = new Date();
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const monthNames = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+
+        const monthGifUrls = [
+            "https://yokai.crd.co/assets/images/gallery19/385bbbe4.gif?v=b4df531c",
+            "https://yokai.crd.co/assets/images/gallery19/45548e65.gif?v=b4df531c",
+            "https://yokai.crd.co/assets/images/gallery19/f7e2f182.gif?v=b4df531c",
+            "https://yokai.crd.co/assets/images/gallery19/64a8d19e.gif?v=b4df531c",
+            "https://yokai.crd.co/assets/images/gallery19/390f7516.gif?v=b4df531c",
+            "https://yokai.crd.co/assets/images/gallery20/19172076.gif?v=b4df531c",
+            "https://yokai.crd.co/assets/images/gallery21/4ee1afbe.gif?v=b4df531c",
+            "https://yokai.crd.co/assets/images/gallery21/d34be082.gif?v=b4df531c",
+            "https://yokai.crd.co/assets/images/gallery20/be76701b.gif?v=b4df531c",
+            "https://yokai.crd.co/assets/images/gallery19/ef9304d3.gif?v=b4df531c",
+            "https://yokai.crd.co/assets/images/gallery19/f9d87c89.gif?v=b4df531c",
+            "https://yokai.crd.co/assets/images/gallery21/d43557ae.gif?v=b4df531c"
+        ];
+        
+        function renderCalendar() {
+            calendarGrid.innerHTML = '';
+        
+            const currentMonth = currentDisplayedDate.getMonth();
+            const currentYear = currentDisplayedDate.getFullYear();
+        
+            monthDisplay.textContent = monthNames[currentMonth];
+            yearDisplay.textContent = currentYear;
+            monthGif.src = monthGifUrls[currentMonth];
+        
+            const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const firstDayOfWeek = firstDayOfMonth.getDay();
+        
+            const prevMonthLastDay = new Date(currentYear, currentMonth, 0).getDate();
+            for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+                const dayDiv = document.createElement('div');
+                dayDiv.textContent = prevMonthLastDay - i;
+                dayDiv.classList.add('inactive');
+                calendarGrid.appendChild(dayDiv);
+            }
+        
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.textContent = i;
+        
+                const loopDate = new Date(currentYear, currentMonth, i);
+                loopDate.setHours(0, 0, 0, 0);
+        
+                if (loopDate.getTime() === today.getTime()) {
+                    dayDiv.classList.add('current-day');
+                }
+                calendarGrid.appendChild(dayDiv);
+            }
+        }
+        
+        prevMonthBtn.addEventListener('click', () => {
+            currentDisplayedDate.setMonth(currentDisplayedDate.getMonth() - 1);
+            renderCalendar();
+        });
+        
+        nextMonthBtn.addEventListener('click', () => {
+            currentDisplayedDate.setMonth(currentDisplayedDate.getMonth() + 1);
+            renderCalendar();
+        });
+        
+        renderCalendar();
+    </script>
+</body>
+</html>
